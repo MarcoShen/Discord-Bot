@@ -53,6 +53,8 @@ client.on('message',message =>{
         client.commands.get('riotid').execute(message,args);
     else if(command == 'stats')
         client.commands.get('stats').execute(message,args);
+    else if(command == 'game')
+        client.commands.get('game').execute(message,args, client);
     
 });
 
