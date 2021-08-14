@@ -1,4 +1,6 @@
+const { Console } = require('console');
 const Discord = require('discord.js');
+var winner;
 
 module.exports = {
     name: 'game',
@@ -13,14 +15,23 @@ module.exports = {
             agent = agent.toLowerCase();
 
             console.log(agent);
-            message.channel.send("``"+ voiceLine +"``");
+            
+            message.channel.send("THIS: ``"+ voiceLine +"``");
+
+
 
             client.on('message',message =>{
-                var winner;
                 if(message.content.toLowerCase() == agent){
-                    winner = message.author.username;
+                    //winner = message.author.username;
+                    //setWinner(winner);
+                    console.log(message.author.username);
+                    
                 }
+                //console.log(getWinner());
             });
+
+            
+
 
         }
     }
@@ -59,5 +70,13 @@ function getData(){
 
 function getRndInt(min, max) {
     return Math.floor(Math.random() * (max - min) ) + min;
+}
+
+function setWinner(win){
+    winner = win;
+}
+
+function getWinner(){
+    return winner;
 }
 

@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'neko',
-    description: "nekomimi c:",
+    name: 'img',
+    description: "img c:",
     execute(message, args){
         number = 410;
 
@@ -14,6 +14,8 @@ module.exports = {
                 imageNumber = Math.floor (Math.random()*(number - 1 + 1))+1;
                 message.channel.send( {files: ["E:/Pictures/homework/" + imageNumber + ".JPG"]});
             }
+
+            
                     
         }else{
             message.channel.send("smh, can't even use a simple command");
