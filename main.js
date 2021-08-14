@@ -46,7 +46,7 @@ client.on('message',message =>{
     //spark is sus
     if (message.channel.id === '783044845555941406' && message.member.id === '112380350591766528' ){
         if (message.attachments.size > 0) {
-            client.commands.get('neko').execute(message,"3");
+            client.commands.get('img').execute(message,"3");
         }
     }
 
@@ -56,8 +56,8 @@ client.on('message',message =>{
     const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
 
-    if(command === 'neko')
-        client.commands.get('neko').execute(message,args);
+    if(command === 'img')
+        client.commands.get('img').execute(message,args);
     else if(command == 'riotid')
         client.commands.get('riotid').execute(message,args);
     else if(command == 'rs')
