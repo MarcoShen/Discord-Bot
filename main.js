@@ -21,7 +21,7 @@ client.once('ready', () => {
     console.log("bot is up");
     client.user.setPresence({
         activity: {
-            name: `Hentai`,
+            name: `You`,
             type: "WATCHING"
         }
     })
@@ -78,6 +78,6 @@ client.on('message',message =>{
 });
 
 
-
+client.login('ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.Voy0BW5y63m5rCkr-ZJbemoFLh8');
 
 
