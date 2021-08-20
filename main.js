@@ -2,6 +2,8 @@ const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
+const checkTopPlays = require('./commands/checkTopPlays.js')
+
 const prefix = '.';
 
 const fs = require('fs');
@@ -21,10 +23,14 @@ client.once('ready', () => {
     console.log("bot is up");
     client.user.setPresence({
         activity: {
-            name: `You`,
+            name: `Hentai`,
             type: "WATCHING"
         }
     })
+    checkTopPlays.methods.check(client);
+    setInterval(function() {
+        checkTopPlays.methods.check(client);
+    }, 60 * 1000); // 60 * 1000 milsec
 });
 
 
@@ -46,7 +52,7 @@ client.on('message',message =>{
     //spark is sus
     if (message.channel.id === '783044845555941406' && message.member.id === '112380350591766528' ){
         if (message.attachments.size > 0) {
-            client.commands.get('img').execute(message,"3");
+            client.commands.get('neko').execute(message,"3");
         }
     }
 
@@ -56,8 +62,11 @@ client.on('message',message =>{
     const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
 
-    if(command === 'img')
-        client.commands.get('img').execute(message,args);
+    // log command used
+    console.log(message.member.user.tag + ': ' + message.content);
+
+    if(command === 'neko')
+        client.commands.get('neko').execute(message,args);
     else if(command == 'riotid')
         client.commands.get('riotid').execute(message,args);
     else if(command == 'rs')
@@ -74,10 +83,16 @@ client.on('message',message =>{
         client.commands.get('baal').execute(message,args, client);
     else if(command == 'hutao')
         client.commands.get('hutao').execute(message,args, client);
+    else if(command == 'top')
+        client.commands.get('top').execute(message,args, client);
     
 });
 
 
 
+
+
+
+client.login('ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.pZW1AII_KKHt1p5tTohF504jGgM');
 
 
