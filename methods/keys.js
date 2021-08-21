@@ -8,7 +8,7 @@ const TOKEN_DATA = {
     'scope': 'public'
 };
 
-const discordKey = 'ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.TsAY7dQd2o1MDBHHjBrtok-4dEI'
+const discordKey = 'ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.t8r8VFErAb5qvKyYyC9Gq9cD8I0'
 
 
 
