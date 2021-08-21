@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 
 const checkTopPlays = require('./commands/checkTopPlays.js')
-const keys = require('./keys.js')
+const keys = require('./methods/keys.js')
 const prefix = '.';
 
 const fs = require('fs');
@@ -87,8 +87,8 @@ client.on('message',message =>{
         client.commands.get('top').execute(message,args, client);
     else if(command == 'c')
         client.commands.get('c').execute(message,args);
-    else if(command == 'rss')
-        client.commands.get('rss').execute(message,args);
+    else if(command == 'rs_old')
+        client.commands.get('rs_old').execute(message,args);
     
 });
 

@@ -27,7 +27,7 @@ module.exports = {
 
 function makeEmbed(data,set){
 
-    // letiables for the embed
+    // variables for the embed
     let score = data.score;
     let arrow = ' ▸ ';
     let mods = osu.methods.emMods(score.mods);
