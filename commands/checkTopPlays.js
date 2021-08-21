@@ -1,11 +1,7 @@
 const axios = require ('axios');
 const fs = require('fs');
-const { get } = require('http');
 const Discord = require('discord.js');
 const moment = require ('moment');
-const { beatmap } = require('ojsama');
-const { join } = require('path');
-const { Console } = require('console');
 
 const USERS = ['Famoose', 'Duckrt', 'MarcoThePotato', 'BingBongNipNong', 'crain', '74-111-110', 'blade100a'];
 var methods = {};
@@ -17,11 +13,11 @@ methods.check = function(client) {
     getToken().then(token => {
 
         // call api to search who is online
-        console.log('('+ moment.utc().format() +') Looking for online users...')
+        //console.log('('+ moment.utc().format() +') Looking for online users...')
         getOnlineUsersData(token).then( map => {
 
             map.forEach((value, key) => {
-               console.log('('+ moment.utc().format() +') Checking top plays for ' + key)
+               //console.log('('+ moment.utc().format() +') Checking top plays for ' + key)
 
                 // loop thru plays
                 for(var i=0; i<value.topPlays.length;i++){
@@ -39,6 +35,18 @@ methods.check = function(client) {
                                 value.newPP = newRanking.statistics.pp;
                                 if(value.newRank != value.prevRank){
                                     channel.send(makeEmbed(value, currI, mapCombo))
+
+                                    var mapObj = new Object();
+                                    mapObj.mapID = theMap.beatmap.id;
+                                    var jsonMap = JSON.stringify(mapObj);
+                                    console.log(jsonMap)
+                                    const fs = require('fs');
+                                    fs.writeFile('assets/latestBeatmap.json', jsonMap, (err) => {
+                                        if (err) {
+                                            throw err;
+                                        }
+                                        console.log("JSON data is saved.");
+                                    });
                                 }
                             })
                         })
@@ -128,7 +136,12 @@ function getMaxCombo(t, mapID){
 
 API_URL = 'https://osu.ppy.sh/api/v2'
 TOKEN_URL = 'https://osu.ppy.sh/oauth/token'
-
+TOKEN_DATA = {
+    'client_id': 7946,
+    'client_secret': 'DNyljviZudpOfRdybnVsivyqMS8wV3mmAPFqu3Oh',
+    'grant_type': 'client_credentials',
+    'scope': 'public'
+};
 
 function getToken(){
     const promise = axios.post(TOKEN_URL, data=TOKEN_DATA)

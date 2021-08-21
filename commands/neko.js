@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'img',
-    description: "img c:",
+    name: 'neko',
+    description: "neko c:",
     execute(message, args){
         number = 410;
 

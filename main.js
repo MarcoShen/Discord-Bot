@@ -85,6 +85,10 @@ client.on('message',message =>{
         client.commands.get('hutao').execute(message,args, client);
     else if(command == 'top')
         client.commands.get('top').execute(message,args, client);
+    else if(command == 'c')
+        client.commands.get('c').execute(message,args);
+    else if(command == 'rss')
+        client.commands.get('rss').execute(message,args);
     
 });
 
@@ -93,6 +97,6 @@ client.on('message',message =>{
 
 
 
-client.login('ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.pZW1AII_KKHt1p5tTohF504jGgM');
+client.login('ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.OSPoMYbhPY7acomqvYMGiDaOp3A');
 
 
