@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 
 const checkTopPlays = require('./commands/checkTopPlays.js')
-
+const keys = require('./keys.js')
 const prefix = '.';
 
 const fs = require('fs');
@@ -97,6 +97,6 @@ client.on('message',message =>{
 
 
 
-client.login('ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.OSPoMYbhPY7acomqvYMGiDaOp3A');
+client.login(keys.methods.getDiscordKey());
 
 

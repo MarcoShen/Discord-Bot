@@ -9,10 +9,10 @@ module.exports = {
     execute(message){
 
         // get discord speaker's linked profiles
-        var speakerInfo = general.methods.getSpeakerData(message);
+        let speakerInfo = general.methods.getSpeakerData(message);
         if(speakerInfo == -1) return message.channel.send('Discord user is not in database.')
 
-        var targetBeatmap = osu.methods.getLatestBeatmap();
+        let targetBeatmap = osu.methods.getLatestBeatmap();
 
         osu.methods.getUserBeatmapScore(targetBeatmap, speakerInfo.osuID).then( score => {
             osu.methods.getBeatmapSet(targetBeatmap).then( set => {
@@ -27,17 +27,17 @@ module.exports = {
 
 function makeEmbed(data,set){
 
-    // variables for the embed
-    var score = data.score;
-    var arrow = ' ▸ ';
-    var mods = osu.methods.emMods(score.mods);
-    var rank = osu.methods.emRank(score.rank);
-    var hits = osu.methods.emHits(score.statistics);
-    var length = osu.methods.emLength(set.total_length, mods);
-    var bpm = osu.methods.emBpm(set.bpm, mods);
-    var info = arrow + score.score + arrow + length + arrow + bpm;
-    var pp = score.pp.toFixed(2);
-    var acc = (score.accuracy*100).toFixed(2);
+    // letiables for the embed
+    let score = data.score;
+    let arrow = ' ▸ ';
+    let mods = osu.methods.emMods(score.mods);
+    let rank = osu.methods.emRank(score.rank);
+    let hits = osu.methods.emHits(score.statistics);
+    let length = osu.methods.emLength(set.total_length, mods);
+    let bpm = osu.methods.emBpm(set.bpm, mods);
+    let info = arrow + score.score + arrow + length + arrow + bpm;
+    let pp = score.pp.toFixed(2);
+    let acc = (score.accuracy*100).toFixed(2);
 
     // embed
     const embed = new Discord.MessageEmbed()

@@ -1,6 +1,7 @@
 const axios = require ('axios');
 const osu = require("ojsama");
 const Discord = require('discord.js');
+const keys = require('./keys.js')
 
 module.exports = {
     name: 'rs',
