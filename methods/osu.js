@@ -4,12 +4,13 @@ const axios = require ('axios');
 const keys = require('./keys.js')
 const general = require('../methods/general.js')
 const ojsama = require("ojsama");
+const moment = require ('moment');
 
 
 API_URL = 'https://osu.ppy.sh/api/v2'
 let methods = {};
 
-// ====================== Osu General ====================== //
+// ====================== Getter / Setter ====================== //
 
 // get target user
 methods.getTargetUser = function(message, args) {
@@ -21,6 +22,21 @@ methods.getTargetUser = function(message, args) {
 methods.getLatestBeatmap = function() {
     let file = fs.readFileSync('assets/latestBeatmap.json');
     return JSON.parse(file).mapID;
+}
+
+
+// set beatmap id
+methods.setLatestBeatMap = function(beatmapID) {
+    let mapObj = new Object();
+    mapObj.mapID = beatmapID;
+    let jsonMap = JSON.stringify(mapObj);
+    const fs = require('fs');
+    fs.writeFile('assets/latestBeatmap.json', jsonMap, (err) => {
+        if (err) {
+            throw err;
+        }
+        console.log(jsonMap);
+    });
 }
 
 
@@ -108,6 +124,37 @@ methods.emBpm = function(bpm, mods){
     return bpm + 'bpm'
 }
 
+methods.ppCheck = function(pp, mapData, play, set){
+    if(pp == null) return this.getPP(mapData, play.mods, (play.accuracy*100).toFixed(2), play.max_combo, play.statistics.count_miss);
+    return pp;
+}
+
+methods.getMapInfo = function(score, length, bpm, mods, time, choke){
+    let arrow = ' ▸ '
+    if(choke) return arrow + score + arrow + this.emLength(length, mods) + arrow + this.emBpm(bpm, mods)
+    return arrow + score + arrow + this.emLength(length, mods) + arrow + this.emBpm(bpm, mods) + arrow + '<t:' + moment(time).unix() + ':R>';
+}
+
+methods.checkChoke = function(play, set){
+    if(play.statistics.count_miss > 0) return true;
+    if((play.max_combo/set.max_combo) < 0.95) return true;  // less than 95% combo consider choke
+    return false;
+}
+
+methods.getChokeTitle = function(choke){
+    if(choke) return '<:__:877033717166661632>';
+    return '\u200B';
+}
+
+methods.getChokeValue = function(choke, time, play, set, mapData){
+    let arrow = ' ▸ '
+    if(choke){
+        let noChokeAcc = this.getNoChokeAcc(play.statistics, set.count_circles, set.count_sliders, set.count_spinners);
+        return '```ymal\n' + this.getPP(mapData, play.mods, noChokeAcc, set.max_combo, 0) + arrow + noChokeAcc + '```' + arrow + ' <t:' + moment(time).unix() + ':R>';
+    }
+    return '\u200B';
+}
+
 
 // ==================== Calculations ==================== //
 
@@ -118,7 +165,8 @@ methods.getNoChokeAcc = function(stats, cir, slid, spin, passed){
     return (acc*100).toFixed(2);
 }
 
-methods.getWhatIf = function(mapData, mods, mapCombo){
+methods.getWhatIf = function(mapData, mods, mapCombo, perfect){
+    if(perfect) return '';
     let whatIf = [
         parseInt(methods.getPP(mapData, mods, 95, mapCombo, 0)*100),
         parseInt(methods.getPP(mapData, mods, 98, mapCombo, 0)*100),
@@ -129,7 +177,7 @@ methods.getWhatIf = function(mapData, mods, mapCombo){
     for(let i=0; i<whatIf.length; i++){
         whatIf[i] = (whatIf[i]/100).toFixed();
     }
-    return whatIf;
+    return '95% ' + whatIf[0] + 'pp | 98% ' + whatIf[1] + 'pp | 99% ' + whatIf[2] + 'pp | 100% ' + whatIf[3] + 'pp';
 }
 
 
@@ -142,13 +190,10 @@ methods.getPP = function(mapData, strMod, acc_percent, combo, nmiss){
         mods = ojsama.modbits.from_string(strMod.slice(1) || "");
     }
 
-    var argv = process.argv;
     mods = ojsama.modbits.from_string(strMod.slice(1) || "");
 
     var parser = new ojsama.parser().feed(mapData);
-
     var map = parser.map;
-
     var stars = new ojsama.diff().calc({map: map, mods: mods});
     
     var pp = ojsama.ppv2({
@@ -164,4 +209,29 @@ methods.getPP = function(mapData, strMod, acc_percent, combo, nmiss){
     return pp.toString().split(' ')[0];
 }
 
+// ================== PlayData class =================== //
+class playData{
+    constructor(play, set , mapData){
+        this.mods = methods.emMods(play.mods);
+        this.rank = methods.emRank(play.rank);
+        this.hits = methods.emHits(play.statistics);
+        this.acc = (play.accuracy*100).toFixed(2) + '%';
+        this.pp = methods.ppCheck(play.pp, mapData, play, set) + 'pp';
+        this.whatIf = methods.getWhatIf(mapData, play.mods, set.max_combo);
+        this.time = '<t:' + moment(play.created_at).unix() + ':R>';
+        this.mapURL = set.url;
+        this.avatar = play.user.avatar_url;
+        this.mapTitle = set.beatmapset.artist + ' - ' + set.beatmapset.title + ' [' + set.version + '] ';
+        this.stars = ' [' + set.difficulty_rating + '★] '
+        this.thumbnail = set.beatmapset.covers.list;
+        this.combo = 'x' + play.max_combo + '/' + set.max_combo;
+        this.mapInfo = methods.getMapInfo(play.score, set.total_length, set.bpm, play.mods, play.created_at, methods.checkChoke(play, set));
+        this.chokeTitle = methods.getChokeTitle(methods.checkChoke(play, set));
+        this.chokeValue = methods.getChokeValue(methods.checkChoke(play, set), play.created_at, play, set, mapData)
+        this.whatIf = methods.getWhatIf(mapData, play.mods, set.max_combo, play.perfect);
+    }
+}
+
+
 exports.methods = methods
+exports.playData = playData
