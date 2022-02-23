@@ -1,6 +1,7 @@
 const axios = require ('axios');
 
-const TOKEN_URL = 'https://osu.ppy.sh/oauth/token'
+// osu key
+const TOKEN_URL = 'https://osu.ppy.sh/oauth/authorize'
 const TOKEN_DATA = {
     'client_id': 7946,
     'client_secret': 'DNyljviZudpOfRdybnVsivyqMS8wV3mmAPFqu3Oh',
@@ -8,13 +9,18 @@ const TOKEN_DATA = {
     'scope': 'public'
 };
 
-const discordKey = 'ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.t8r8VFErAb5qvKyYyC9Gq9cD8I0'
+// discord key
+const discordKey = 'ODMxNzI3MjY0MzMxODU3OTYz.YHZcYA.v-BIyjFx3Shh0gMAJ2wAt_N__xY'
+
+// config
+const prefix = '.';
+const activity_name = "Lost Ark Guides";
+const activity_type = "WATCHING";
 
 
 
-
+// GET functions
 let methods = {};
-
 methods.getOsuToken = function() {
     const promise = axios.post(TOKEN_URL, data=TOKEN_DATA);
     const dataPromise = promise.then((response) => response.data.access_token);
@@ -22,7 +28,15 @@ methods.getOsuToken = function() {
 }
 
 methods.getDiscordKey = function() {
-    return discordKey
+    return discordKey;
+}
+
+methods.getPrefix = function(){
+    return prefix;
+}
+
+methods.getActivity = function(){
+    return {activity_name, activity_type};
 }
 
 

@@ -10,7 +10,6 @@ module.exports = {
 
         // get discord speaker's linked profiles
         let speakerInfo = general.methods.getSpeakerData(message);
-        if(speakerInfo == -1) return message.channel.send('Discord user is not in database.')
 
         let targetBeatmap = osu.methods.getLatestBeatmap();
 

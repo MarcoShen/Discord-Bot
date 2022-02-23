@@ -1,7 +1,7 @@
 const fs = require('fs');
 const readline = require('readline');
 const axios = require ('axios');
-const keys = require('./keys.js')
+const keys = require('./config.js')
 const general = require('../methods/general.js')
 const ojsama = require("ojsama");
 const moment = require ('moment');
@@ -15,6 +15,7 @@ let methods = {};
 // get target user
 methods.getTargetUser = function(message, args) {
     if(args[0]) return args[0];
+    if(general.methods.getSpeakerData(message) == null) return null
     return general.methods.getSpeakerData(message).osuID;
 }
 
@@ -115,18 +116,24 @@ methods.emHits = function(stats){
 }
 
 methods.emLength = function(total_length, mods){
-    let seconds = [Math.floor((total_length/60)), total_length % 60]
+    let length = total_length;
+    if(mods.includes('DT') || mods.includes('NC')) length = (length/1.5).toFixed()
+    else if (mods.includes('HT')) length = (length/0.75).toFixed();
+
+    let seconds = [Math.floor((length/60)), length % 60]
     if(seconds[1] < 10) seconds[1] = '0' + seconds[1]
     return seconds[0] + ':' + seconds[1]
 }
 
 methods.emBpm = function(bpm, mods){
+    if(mods.includes('DT') || mods.includes('NC')) return (bpm*1.5).toFixed() + 'bpm';
+    else if (mods.includes('HT')) return (bpm*0.75).toFixed() + 'bpm';
     return bpm + 'bpm'
 }
 
-methods.ppCheck = function(pp, mapData, play, set){
-    if(pp == null) return this.getPP(mapData, play.mods, (play.accuracy*100).toFixed(2), play.max_combo, play.statistics.count_miss);
-    return pp;
+methods.ppCheck = function(pp, mapData, play){
+    if(pp == null) return this.getPP(mapData, play.mods, (play.accuracy*100).toFixed(2), play.max_combo, play.statistics.count_miss)[0];
+    return pp.toFixed(2);
 }
 
 methods.getMapInfo = function(score, length, bpm, mods, time, choke){
@@ -150,9 +157,14 @@ methods.getChokeValue = function(choke, time, play, set, mapData){
     let arrow = ' ▸ '
     if(choke){
         let noChokeAcc = this.getNoChokeAcc(play.statistics, set.count_circles, set.count_sliders, set.count_spinners);
-        return '```ymal\n' + this.getPP(mapData, play.mods, noChokeAcc, set.max_combo, 0) + arrow + noChokeAcc + '```' + arrow + ' <t:' + moment(time).unix() + ':R>';
+        return '```ymal\n' + this.getPP(mapData, play.mods, noChokeAcc, set.max_combo, 0)[0] + 'pp' + arrow + noChokeAcc + '%```' + arrow + ' <t:' + moment(time).unix() + ':R>';
     }
     return '\u200B';
+}
+
+methods.getStars = function(mapData, mods, set){
+    if (mods) return this.getPP(mapData, mods, 0, 0, 0)[1];
+    return set.difficulty_rating;
 }
 
 
@@ -168,10 +180,10 @@ methods.getNoChokeAcc = function(stats, cir, slid, spin, passed){
 methods.getWhatIf = function(mapData, mods, mapCombo, perfect){
     if(perfect) return '';
     let whatIf = [
-        parseInt(methods.getPP(mapData, mods, 95, mapCombo, 0)*100),
-        parseInt(methods.getPP(mapData, mods, 98, mapCombo, 0)*100),
-        parseInt(methods.getPP(mapData, mods, 99, mapCombo, 0)*100),
-        parseInt(methods.getPP(mapData, mods, 100, mapCombo, 0)*100)
+        parseInt(methods.getPP(mapData, mods, 95, mapCombo, 0)[0]*100),
+        parseInt(methods.getPP(mapData, mods, 98, mapCombo, 0)[0]*100),
+        parseInt(methods.getPP(mapData, mods, 99, mapCombo, 0)[0]*100),
+        parseInt(methods.getPP(mapData, mods, 100, mapCombo, 0)[0]*100)
     ]
 
     for(let i=0; i<whatIf.length; i++){
@@ -183,7 +195,6 @@ methods.getWhatIf = function(mapData, mods, mapCombo, perfect){
 
 methods.getPP = function(mapData, strMod, acc_percent, combo, nmiss){
     var mods = ojsama.modbits.none;
-
     strMod = strMod.join('');
     strMod = "+" + strMod;
     if (strMod.startsWith("+")) {
@@ -206,7 +217,7 @@ methods.getPP = function(mapData, strMod, acc_percent, combo, nmiss){
     var max_combo = map.max_combo();
     combo = combo || max_combo;
 
-    return pp.toString().split(' ')[0];
+    return [pp.toString().split(' ')[0], stars.toString().split(' ')[0]];
 }
 
 // ================== PlayData class =================== //
@@ -216,13 +227,13 @@ class playData{
         this.rank = methods.emRank(play.rank);
         this.hits = methods.emHits(play.statistics);
         this.acc = (play.accuracy*100).toFixed(2) + '%';
-        this.pp = methods.ppCheck(play.pp, mapData, play, set) + 'pp';
+        this.pp = methods.ppCheck(play.pp, mapData, play) + 'pp';
         this.whatIf = methods.getWhatIf(mapData, play.mods, set.max_combo);
         this.time = '<t:' + moment(play.created_at).unix() + ':R>';
         this.mapURL = set.url;
         this.avatar = play.user.avatar_url;
         this.mapTitle = set.beatmapset.artist + ' - ' + set.beatmapset.title + ' [' + set.version + '] ';
-        this.stars = ' [' + set.difficulty_rating + '★] '
+        this.stars = ' [' + methods.getStars(mapData,play.mods,set) + '★] '
         this.thumbnail = set.beatmapset.covers.list;
         this.combo = 'x' + play.max_combo + '/' + set.max_combo;
         this.mapInfo = methods.getMapInfo(play.score, set.total_length, set.bpm, play.mods, play.created_at, methods.checkChoke(play, set));
@@ -232,6 +243,31 @@ class playData{
     }
 }
 
+class userData{
+    constructor(user){
+        this.avatar = user.avatar_url;
+        this.flag = 'https://osu.ppy.sh/images/flags/' + user.country_code + '.png';
+        this.profileURL = 'https://osu.ppy.sh/users/' + user.id;
+        this.country = user.country_code;
+        this.username = user.username;
+        this.joinDate = moment(user.join_date).fromNow();
+        this.level = user.statistics.level.current;
+        this.progress = user.statistics.level.progress;
+        this.globalRank = user.statistics.global_rank;
+        this.countryRank = user.statistics.country_rank;
+        this.pp = user.statistics.pp.toFixed();
+        this.acc = user.statistics.hit_accuracy.toFixed(2);
+        this.plays = user.statistics.play_count;
+        this.playTime = (user.statistics.play_time/3600).toFixed();
+        this.ss = user.statistics.grade_counts.ss;
+        this.ssh = user.statistics.grade_counts.ssh;
+        this.s = user.statistics.grade_counts.s;
+        this.sh = user.statistics.grade_counts.sh;
+        this.a = user.statistics.grade_counts.a;
+    }
+}
+
 
 exports.methods = methods
 exports.playData = playData
+exports.userData = userData

@@ -1,3 +1,4 @@
+const { DiscordAPIError } = require('discord.js');
 const fs = require('fs');
 
 

@@ -3,7 +3,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const moment = require ('moment');
 
-const USERS = ['Famoose', 'Duckrt', 'MarcoThePotato', 'BingBongNipNong', 'crain', '74-111-110', 'blade100a'];
+const USERS = ['Famoose', 'Duckrt', 'MarcoThePotato', 'BingBongNipNong', 'crain', '74-111-110'];
 var methods = {};
 
 methods.check = function(client) {
@@ -17,7 +17,7 @@ methods.check = function(client) {
         getOnlineUsersData(token).then( map => {
 
             map.forEach((value, key) => {
-               //console.log('('+ moment.utc().format() +') Checking top plays for ' + key)
+               console.log('('+ moment.utc().format() +') Checking top plays for ' + key)
 
                 // loop thru plays
                 for(var i=0; i<value.topPlays.length;i++){
@@ -91,7 +91,7 @@ function makeEmbed(user, index, mapCombo){
     var displayHits = '[' + playInfo.statistics.count_300 + '/'+ playInfo.statistics.count_100 + '/' + playInfo.statistics.count_50 + '/' + playInfo.statistics.count_miss + ']';
     var mods = '';
     if (playInfo.mods.length > 0){
-        mods = '+**' + data.mods.join('') + '**';
+        mods = '+**' + playInfo.mods.join('') + '**';
     }
 
     const embed = new Discord.MessageEmbed()

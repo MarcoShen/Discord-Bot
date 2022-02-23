@@ -1,7 +1,6 @@
 const osu = require('../methods/osu.js')
 const Discord = require('discord.js');
 const moment = require ('moment');
-const { beatmap } = require('ojsama');
 
 module.exports = {
     name: 'rs',
@@ -50,5 +49,4 @@ function makeEmbed(playData){
         .setFooter(playData.whatIf);
         
     return embed;
-
 }
